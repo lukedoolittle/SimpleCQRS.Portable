@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>SimpleCQRS.Portable</id>
+    <version>0.0.3</version>
+    <title>SimpleCQRS.Portable</title>
+    <authors>tecmobo</authors>
+    <owners></owners>
+    <description>
+      An implementation of the SimpleCQRS sample from Greg Young
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+       An implementation of the SimpleCQRS sample from Greg Young
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://nuget.org/packages/SimpleCQRS.Portable</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <dependencies>
+        <group targetFramework="portable45-net45+win8+wpa81">
+          <dependency id="Newtonsoft.Json" version="7.0.1" />
+        </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>
