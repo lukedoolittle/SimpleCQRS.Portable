@@ -11,7 +11,7 @@ namespace SimpleCQRS.Test
         [Fact]
         public void GetAllTypesInNamespaceReturnsSomeNumberOfProperlyFormattedResults()
         {
-            var @namespace = "Pacman.Domain.Events";
+            var @namespace = "SimpleCQRS.Domain";
 
             var types = Reflection.GetAllTypesInNamespace(@namespace);
 

@@ -21,7 +21,9 @@ namespace SimpleCQRS.Framework
             Type typeInNamespace,
             bool excludeGivenType = false)
         {
-            var types = GetAllTypesInNamespace(typeInNamespace.Namespace);
+            var types = GetAllTypesInNamespace(
+                typeInNamespace.Namespace, 
+                typeInNamespace.GetTypeInfo().Assembly);
 
             return excludeGivenType ? 
                 types.Where(t => t.AssemblyQualifiedName != typeInNamespace.AssemblyQualifiedName) : 
@@ -36,9 +38,10 @@ namespace SimpleCQRS.Framework
             {
                 assembly = typeof(Reflection).GetTypeInfo().Assembly;
             }
+
             return assembly.DefinedTypes
                 .Where(type => type.IsClass && type.Namespace == @namespace)
-                .Select(t=>t.AsType());
+                .Select(t => t.AsType());
         }
 
         #endregion Types
