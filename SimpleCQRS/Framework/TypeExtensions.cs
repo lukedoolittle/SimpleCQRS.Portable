@@ -7,30 +7,26 @@ namespace SimpleCQRS.Framework
 {
     public static class TypeExtensions
     {
-        public static string FullNameForProperty(this Type instance)
-        {
-            return $"{instance.Namespace}.{instance.Name}";
-        }
-
-        public static string AssemblyQualifiedShortName(
-            this Type instance)
-        {
-            return $"{instance.FullName}, {instance.GetTypeInfo().Assembly.GetName().Name}";
-        }
-
         public static string GetGenericName(this Type instance)
         {
+            if (instance == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             if (!instance.GetTypeInfo().IsGenericType)
+            {
                 return instance.Name;
-            StringBuilder sb = new StringBuilder();
+            }
 
-            sb.Append(instance.Name.Substring(0, instance.Name.LastIndexOf("`")));
-            sb.Append(instance.GetTypeInfo().GenericTypeParameters.Aggregate("<",
-                (aggregate, type) => aggregate + (aggregate == "<" ? "" : ",") + GetGenericName(type)
-                ));
-            sb.Append(">");
+            var stringBuilder = new StringBuilder();
 
-            return sb.ToString();
+            stringBuilder.Append(instance.Name.Substring(0, instance.Name.LastIndexOf("`", StringComparison.Ordinal)));
+            stringBuilder.Append(instance.GetTypeInfo().GenericTypeParameters.Aggregate("<",
+                (aggregate, type) => aggregate + (aggregate == "<" ? "" : ",") + GetGenericName(type)));
+            stringBuilder.Append(">");
+
+            return stringBuilder.ToString();
         }
 
         public static string GetNonGenericName(this Type instance)
@@ -39,9 +35,14 @@ namespace SimpleCQRS.Framework
             {
                 return instance.Name;
             }
+
             else
             {
                 var argumentCount = instance.GetTypeInfo().GenericTypeParameters.Count();
+                if (argumentCount == 0)
+                {
+                    argumentCount = instance.GetTypeInfo().GenericTypeArguments.Count();
+                }
                 return instance.Name.Replace($"`{argumentCount}", "");
             }
         }

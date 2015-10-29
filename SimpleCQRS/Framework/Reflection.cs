@@ -19,6 +19,7 @@ namespace SimpleCQRS.Framework
 
         public static IEnumerable<Type> GetAllTypesInNamespace(
             Type typeInNamespace,
+            Assembly assembly,
             bool excludeGivenType = false)
         {
             var types = GetAllTypesInNamespace(
@@ -32,13 +33,8 @@ namespace SimpleCQRS.Framework
 
         public static IEnumerable<Type> GetAllTypesInNamespace(
             string @namespace, 
-            Assembly assembly = null)
+            Assembly assembly)
         {
-            if (assembly == null)
-            {
-                assembly = typeof(Reflection).GetTypeInfo().Assembly;
-            }
-
             return assembly.DefinedTypes
                 .Where(type => type.IsClass && type.Namespace == @namespace)
                 .Select(t => t.AsType());
@@ -54,9 +50,36 @@ namespace SimpleCQRS.Framework
             Type[] genericMethodParameters,
             params object[] parameters)
         {
-            MethodInfo method = instance.GetType().GetTypeInfo().GetDeclaredMethod(
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
+            var method = instance.GetType().GetTypeInfo().GetMethodInfo(
                 genericMethodName);
-            MethodInfo generic = method.MakeGenericMethod(genericMethodParameters);
+
+            if (method == null)
+            {
+                throw new Exception($"No method found named {genericMethodName}");
+            }
+
+            if (!method.IsGenericMethod)
+            {
+                throw new Exception($"Generic method {method.Name} is not generic");
+            }
+
+            if (genericMethodParameters == null || genericMethodParameters.Any(p => p == null))
+            {
+                throw new Exception($"Generic method paramaters for generic method {method.Name} invalid");
+            }
+
+            var generic = method.MakeGenericMethod(genericMethodParameters);
+
+            if (generic == null)
+            {
+                throw new Exception($"Could not create generic type from {method.Name}");
+            }
+
             try
             {
                 return generic.Invoke(instance, parameters);
@@ -65,6 +88,19 @@ namespace SimpleCQRS.Framework
             {
                 throw e.InnerException;
             }
+        }
+
+        private static MethodInfo GetMethodInfo(
+            this TypeInfo instance, 
+            string methodName)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return instance.GetDeclaredMethod(methodName) ?? 
+                instance.BaseType.GetTypeInfo().GetMethodInfo(methodName);
         }
 
         public static object InvokeGenericMethod(

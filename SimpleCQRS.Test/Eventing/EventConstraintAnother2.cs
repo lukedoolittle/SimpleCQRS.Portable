@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleCQRS.Test.Eventing.EventConstraintOne
+namespace SimpleCQRS.Test.Eventing.EventConstraintBaseTwo
 {
-    public class EventConstraintBase1
+    public class EventConstraintAnother2 : EventConstraintBase2
     {
     }
 }

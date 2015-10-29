@@ -34,13 +34,18 @@ namespace SimpleCQRS.Domain
             List<Type> conflictingTypes,
             bool registerSelf = false)
         {
+            var generic = typeof(TGenericType);
+            var genericSub = typeof(TSubGenericType);
+
             var genericTypes =
                 Reflection.GetAllTypesInNamespace(
-                    typeof(TGenericType),
+                    generic,
+                    generic.GetTypeInfo().Assembly,
                     true);
             var subGenericTypes =
                 Reflection.GetAllTypesInNamespace(
-                    typeof(TSubGenericType),
+                    genericSub,
+                    genericSub.GetTypeInfo().Assembly,
                     true);
             foreach (var genericType in genericTypes)
             {
@@ -65,7 +70,13 @@ namespace SimpleCQRS.Domain
             List<Type> conflictingTypes,
             bool registerSelf = false)
         {
-            var genericTypes = Reflection.GetAllTypesInNamespace(typeof(TGenericType), true);
+            var generic = typeof(TGenericType);
+
+            var genericTypes = Reflection.GetAllTypesInNamespace(
+                generic,
+                generic.GetTypeInfo().Assembly,
+                true);
+
             foreach (var type in genericTypes)
             {
                 var genericType = Reflection.CreateGenericType(genericEventType, type);
@@ -108,13 +119,18 @@ namespace SimpleCQRS.Domain
         //type subtype combinations even if they are not valid
         protected void RegisterGenericEvents<TGenericType, TSubGenericType>(Type genericEventType)
         {
+            var generic = typeof(TGenericType);
+            var genericSub = typeof(TSubGenericType);
+
             var genericTypes =
                 Reflection.GetAllTypesInNamespace(
-                    typeof(TGenericType),
+                    generic,
+                    generic.GetTypeInfo().Assembly,
                     true);
             var subGenericTypes =
                 Reflection.GetAllTypesInNamespace(
-                    typeof(TSubGenericType),
+                    genericSub,
+                    genericSub.GetTypeInfo().Assembly,
                     true);
             string methodName = $"On{genericEventType.GetNonGenericName()}";
 
@@ -137,8 +153,11 @@ namespace SimpleCQRS.Domain
         {
             string methodName = $"On{genericEventType.GetNonGenericName()}";
 
+            var generic = typeof(TGenericType);
+
             var genericTypes = Reflection.GetAllTypesInNamespace(
-                typeof(TGenericType),
+                generic,
+                generic.GetTypeInfo().Assembly,
                 true);
 
             foreach (var genericType in genericTypes)

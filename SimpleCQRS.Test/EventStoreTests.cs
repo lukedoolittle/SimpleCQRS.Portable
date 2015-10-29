@@ -8,6 +8,7 @@ using SimpleCQRS.Exceptions;
 using SimpleCQRS.Framework.Contracts;
 using SimpleCQRS.Infrastructure;
 using SimpleCQRS.Test.Eventing;
+using SimpleCQRS.Test.Eventing.EventConstraintOne;
 using SimpleCQRS.Test.Mocks;
 using Xunit;
 

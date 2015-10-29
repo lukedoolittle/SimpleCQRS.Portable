@@ -1,4 +1,6 @@
 ﻿using SimpleCQRS.Domain;
+using SimpleCQRS.Test.Eventing.EventConstraintBaseTwo;
+using SimpleCQRS.Test.Eventing.EventConstraintOne;
 
 namespace SimpleCQRS.Test.Eventing
 {

@@ -73,12 +73,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AggregateRootTests.cs" />
     <Compile Include="ConcurrencyConflictResolverTests.cs" />
     <Compile Include="Eventing\Event1.cs" />
     <Compile Include="Eventing\Event2.cs" />
     <Compile Include="Eventing\Event3.cs" />
     <Compile Include="Eventing\EventConstraint1.cs" />
     <Compile Include="Eventing\EventConstraintAnother1.cs" />
+    <Compile Include="Eventing\EventConstraintAnother2.cs" />
     <Compile Include="Eventing\EventConstraintBase1.cs" />
     <Compile Include="Eventing\EventConstraintBase2.cs" />
     <Compile Include="EventStoreTests.cs" />

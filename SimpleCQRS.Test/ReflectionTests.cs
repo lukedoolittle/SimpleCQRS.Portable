@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Linq;
+using SimpleCQRS.Domain;
 using SimpleCQRS.Framework;
 using SimpleCQRS.Test.Eventing;
+using SimpleCQRS.Test.Eventing.EventConstraintBaseTwo;
+using SimpleCQRS.Test.Eventing.EventConstraintOne;
 using Xunit;
 
 namespace SimpleCQRS.Test
@@ -13,7 +16,7 @@ namespace SimpleCQRS.Test
         {
             var @namespace = "SimpleCQRS.Domain";
 
-            var types = Reflection.GetAllTypesInNamespace(@namespace);
+            var types = Reflection.GetAllTypesInNamespace(@namespace, typeof(AggregateRoot).Assembly);
 
             Assert.NotNull(types);
             Assert.True(types.Any());
@@ -24,7 +27,7 @@ namespace SimpleCQRS.Test
         {
             var typeFromNamespace = typeof(EventConstraintBase1);
 
-            var types = Reflection.GetAllTypesInNamespace(typeFromNamespace);
+            var types = Reflection.GetAllTypesInNamespace(typeFromNamespace, typeFromNamespace.Assembly);
 
             Assert.NotNull(types);
             Assert.True(types.Any());

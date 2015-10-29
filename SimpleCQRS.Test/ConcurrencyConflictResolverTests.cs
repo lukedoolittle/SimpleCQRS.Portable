@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Test.Eventing;
+using SimpleCQRS.Test.Eventing.EventConstraintOne;
 using Xunit;
 
 namespace SimpleCQRS.Test
