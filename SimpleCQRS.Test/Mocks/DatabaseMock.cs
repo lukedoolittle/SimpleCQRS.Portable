@@ -73,7 +73,7 @@ namespace SimpleCQRS.Test.Mocks
         }
 
         public IEnumerable<TEntity> GetAll<TEntity>(string aggregateId) 
-            where TEntity : class, IUnique
+            where TEntity : class
         {
             return _inMemoryDatabase
                 .Values

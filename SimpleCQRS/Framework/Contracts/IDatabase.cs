@@ -15,6 +15,6 @@ namespace SimpleCQRS.Framework.Contracts
     public interface IDatabase
     {
         IEnumerable<TEntity> GetAll<TEntity>(string aggregateId)
-            where TEntity : class, IUnique;
+            where TEntity : class;
     }
 }
