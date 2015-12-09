@@ -12,6 +12,7 @@ namespace SimpleCQRS.Domain
         protected readonly Dictionary<Type, Action<Event>> _registeredEvents;
         protected readonly List<Event> _changes;
         protected readonly IConcurrencyConflictResolver _conflictResolver;
+        protected readonly Assembly _genericArgumentsAssembly;
 
         public abstract Guid Id { get; }
         public int Version { get; protected set; }
@@ -23,6 +24,12 @@ namespace SimpleCQRS.Domain
             _conflictResolver = new ConcurrencyConflictResolver();
             _changes = new List<Event>();
             _registeredEvents = new Dictionary<Type, Action<Event>>();
+        }
+
+        protected AggregateRoot(Assembly genericArgumentsAssembly) : 
+            this()
+        {
+            _genericArgumentsAssembly = genericArgumentsAssembly;
         }
 
         #region ConflictResolvers
@@ -38,15 +45,15 @@ namespace SimpleCQRS.Domain
             var genericSub = typeof(TSubGenericType);
 
             var genericTypes =
-                Reflection.GetAllTypesInNamespace(
-                    generic,
-                    generic.GetTypeInfo().Assembly,
-                    true);
+                Reflection.GetAllConcreteImplementors(
+                generic,
+                _genericArgumentsAssembly);
+
             var subGenericTypes =
-                Reflection.GetAllTypesInNamespace(
-                    genericSub,
-                    genericSub.GetTypeInfo().Assembly,
-                    true);
+                Reflection.GetAllConcreteImplementors(
+                genericSub,
+                _genericArgumentsAssembly);
+
             foreach (var genericType in genericTypes)
             {
                 foreach (var subGenericType in subGenericTypes)
@@ -72,10 +79,9 @@ namespace SimpleCQRS.Domain
         {
             var generic = typeof(TGenericType);
 
-            var genericTypes = Reflection.GetAllTypesInNamespace(
+            var genericTypes = Reflection.GetAllConcreteImplementors(
                 generic,
-                generic.GetTypeInfo().Assembly,
-                true);
+                _genericArgumentsAssembly);
 
             foreach (var type in genericTypes)
             {
@@ -123,15 +129,15 @@ namespace SimpleCQRS.Domain
             var genericSub = typeof(TSubGenericType);
 
             var genericTypes =
-                Reflection.GetAllTypesInNamespace(
-                    generic,
-                    generic.GetTypeInfo().Assembly,
-                    true);
+                Reflection.GetAllConcreteImplementors(
+                generic,
+                _genericArgumentsAssembly);
+
             var subGenericTypes =
-                Reflection.GetAllTypesInNamespace(
-                    genericSub,
-                    genericSub.GetTypeInfo().Assembly,
-                    true);
+                Reflection.GetAllConcreteImplementors(
+                genericSub,
+                _genericArgumentsAssembly);
+
             string methodName = $"On{genericEventType.GetNonGenericName()}";
 
             foreach (var genericType in genericTypes)
@@ -155,10 +161,9 @@ namespace SimpleCQRS.Domain
 
             var generic = typeof(TGenericType);
 
-            var genericTypes = Reflection.GetAllTypesInNamespace(
+            var genericTypes = Reflection.GetAllConcreteImplementors(
                 generic,
-                generic.GetTypeInfo().Assembly,
-                true);
+                _genericArgumentsAssembly);
 
             foreach (var genericType in genericTypes)
             {

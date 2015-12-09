@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Framework;
@@ -12,25 +13,19 @@ namespace SimpleCQRS.Test
     public class ReflectionTests
     {
         [Fact]
-        public void GetAllTypesInNamespaceReturnsSomeNumberOfProperlyFormattedResults()
+        public void GetAllConcreteImplementorsReturnsOnlyConcreteItems()
         {
-            var @namespace = "SimpleCQRS.Domain";
+            var type = typeof (BaseClass);
+            var expected = new List<Type> {typeof (ConcreteDerivedClass), typeof (ConcreteDoubleDerivedClass)};
 
-            var types = Reflection.GetAllTypesInNamespace(@namespace, typeof(AggregateRoot).Assembly);
+            var actual = Reflection.GetAllConcreteImplementors(type, GetType().Assembly);
 
-            Assert.NotNull(types);
-            Assert.True(types.Any());
-        }
+            Assert.Equal(expected.Count, actual.Count());
 
-        [Fact]
-        public void GetAllTypesInNamespaceFromTypeReturnsSomeNumberOfProperlyFormattedResults()
-        {
-            var typeFromNamespace = typeof(EventConstraintBase1);
-
-            var types = Reflection.GetAllTypesInNamespace(typeFromNamespace, typeFromNamespace.Assembly);
-
-            Assert.NotNull(types);
-            Assert.True(types.Any());
+            foreach (var actualType in actual)
+            {
+                Assert.True(expected.Contains(actualType));
+            }
         }
 
         [Fact]
@@ -85,4 +80,9 @@ namespace SimpleCQRS.Test
             LastCallType = typeof (K);
         }
     }
+
+    public abstract class BaseClass { }
+    public abstract class DerivedClass : BaseClass { }
+    public class ConcreteDerivedClass : BaseClass { }
+    public class ConcreteDoubleDerivedClass : DerivedClass { }
 }

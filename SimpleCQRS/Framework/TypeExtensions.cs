@@ -7,6 +7,35 @@ namespace SimpleCQRS.Framework
 {
     public static class TypeExtensions
     {
+        public static Type WithGenericParameters(
+            this Type instance,
+            params Type[] genericParameters)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var type = instance.MakeGenericType(genericParameters);
+            return type;
+        }
+
+        public static bool HasBase(this Type instance, Type baseType)
+        {
+            if (baseType == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (instance == null)
+            {
+                return false;
+            }
+
+            return instance.GetTypeInfo().BaseType == baseType ||
+                   instance.GetTypeInfo().BaseType.HasBase(baseType);
+        }
+
         public static string GetGenericName(this Type instance)
         {
             if (instance == null)

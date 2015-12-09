@@ -17,28 +17,14 @@ namespace SimpleCQRS.Framework
 
         #region Types
 
-        public static IEnumerable<Type> GetAllTypesInNamespace(
-            Type typeInNamespace,
-            Assembly assembly,
-            bool excludeGivenType = false)
-        {
-            var types = GetAllTypesInNamespace(
-                typeInNamespace.Namespace, 
-                typeInNamespace.GetTypeInfo().Assembly);
-
-            return excludeGivenType ? 
-                types.Where(t => t.AssemblyQualifiedName != typeInNamespace.AssemblyQualifiedName) : 
-                types;
-        }
-
-        public static IEnumerable<Type> GetAllTypesInNamespace(
-            string @namespace, 
+        public static IEnumerable<Type> GetAllConcreteImplementors(
+            Type baseType, 
             Assembly assembly)
         {
             return assembly.DefinedTypes
-                .Where(type => type.IsClass && type.Namespace == @namespace)
+                .Where(type => !type.IsAbstract && type.AsType().HasBase(baseType))
                 .Select(t => t.AsType());
-        }
+        } 
 
         #endregion Types
 

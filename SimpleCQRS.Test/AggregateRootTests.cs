@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Test.Eventing;
 using SimpleCQRS.Test.Eventing.EventConstraintBaseTwo;
@@ -11,10 +12,18 @@ namespace SimpleCQRS.Test
 {
     public class AggregateRootRegistrationMock : AggregateRoot
     {
+        private static Assembly _genericsAssembly;
+
+        public static void SetGenericsAssembly(Assembly genericsAssembly)
+        {
+            _genericsAssembly = genericsAssembly;
+        }
+
         private readonly List<object> _eventsHandled;
         public override Guid Id { get; }
 
-        public AggregateRootRegistrationMock()
+        public AggregateRootRegistrationMock() : 
+            base(_genericsAssembly)
         {
             _eventsHandled = new List<object>();
         }
@@ -73,6 +82,7 @@ namespace SimpleCQRS.Test
         [Fact]
         public void RegisterGenericEventsWithAggregateRoot()
         {
+            AggregateRootRegistrationMock.SetGenericsAssembly(GetType().Assembly);
             var mockRoot = new AggregateRootRegistrationMock();
 
             mockRoot.CallRegisterEvents();
@@ -81,7 +91,9 @@ namespace SimpleCQRS.Test
         [Fact]
         public void RegisterGenericEventsAndHandleSomeEvent()
         {
+            AggregateRootRegistrationMock.SetGenericsAssembly(GetType().Assembly);
             var mockRoot = new AggregateRootRegistrationMock();
+
             mockRoot.CallRegisterEvents();
             var expected = new Event3<EventConstraint1, EventConstraintAnother2>();
 
