@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using SimpleCQRS.Exceptions;
 using SimpleCQRS.Framework;
 using SimpleCQRS.Framework.Contracts;
 
@@ -41,6 +42,11 @@ namespace SimpleCQRS.Domain
             List<Type> conflictingTypes,
             bool registerSelf = false)
         {
+            if (_genericArgumentsAssembly == null)
+            {
+                throw new NoImplementorsAssemblyRegisteredException();
+            }
+
             var generic = typeof(TGenericType);
             var genericSub = typeof(TSubGenericType);
 
@@ -77,6 +83,11 @@ namespace SimpleCQRS.Domain
             List<Type> conflictingTypes,
             bool registerSelf = false)
         {
+            if (_genericArgumentsAssembly == null)
+            {
+                throw new NoImplementorsAssemblyRegisteredException();
+            }
+
             var generic = typeof(TGenericType);
 
             var genericTypes = Reflection.GetAllConcreteImplementors(
@@ -125,6 +136,11 @@ namespace SimpleCQRS.Domain
         //type subtype combinations even if they are not valid
         protected void RegisterGenericEvents<TGenericType, TSubGenericType>(Type genericEventType)
         {
+            if (_genericArgumentsAssembly == null)
+            {
+                throw new NoImplementorsAssemblyRegisteredException();
+            }
+
             var generic = typeof(TGenericType);
             var genericSub = typeof(TSubGenericType);
 
@@ -157,6 +173,11 @@ namespace SimpleCQRS.Domain
 
         protected void RegisterGenericEvents<TGenericType>(Type genericEventType)
         {
+            if (_genericArgumentsAssembly == null)
+            {
+                throw new NoImplementorsAssemblyRegisteredException();
+            }
+
             string methodName = $"On{genericEventType.GetNonGenericName()}";
 
             var generic = typeof(TGenericType);

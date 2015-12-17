@@ -33,6 +33,7 @@
   <ItemGroup>
     <Compile Include="CommandHandlerBase.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
+    <Compile Include="Exceptions\NoImplementorsAssemblyRegisteredException.cs" />
     <Compile Include="Framework\Contracts\ICommandHandler.cs" />
     <Compile Include="Framework\Contracts\ICommandSender.cs" />
     <Compile Include="Framework\Contracts\IConcurrencyConflictResolver.cs" />
