@@ -114,7 +114,7 @@ namespace SimpleCQRS.Infrastructure
 
             if (eventDescriptors == null)
             {
-                throw new AggregateNotFoundException();
+                throw new AggregateNotFoundException(aggregateId);
             }
 
             return eventDescriptors.Select(desc => desc.EventData).ToList();
