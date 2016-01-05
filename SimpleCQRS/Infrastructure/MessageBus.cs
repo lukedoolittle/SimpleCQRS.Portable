@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Exceptions;
 using SimpleCQRS.Framework.Contracts;
@@ -12,7 +13,7 @@ namespace SimpleCQRS.Infrastructure
         private readonly IDictionary<Type, IList<ISubscription>> _subscriptions =
             new Dictionary<Type, IList<ISubscription>>();
 
-        public virtual void Send<TCommand>(TCommand command)
+        public virtual Task Send<TCommand>(TCommand command)
             where TCommand : Command
         {
             if (command == null)
@@ -29,11 +30,14 @@ namespace SimpleCQRS.Infrastructure
                 {
                     throw new MultipleCommandHandlersException();
                 }
-                subscriptionList[0].Action(command);
+
+                return Task.Run(() => subscriptionList[0].Action(command));
             }
+
+            return Task.FromResult(0);
         }
 
-        public virtual void Publish<TEvent>(TEvent @event)
+        public virtual Task Publish<TEvent>(TEvent @event)
             where TEvent : Event
         {
             if (@event == null)
@@ -46,9 +50,13 @@ namespace SimpleCQRS.Infrastructure
             {
                 var subscriptionList = new List<ISubscription>(
                     _subscriptions[messageType]);
-                foreach (var subscription in subscriptionList)
-                    subscription.Action(@event);
+                var tasks = subscriptionList
+                    .Select(subscription => Task.Run(() => subscription.Action(@event)))
+                    .ToList();
+                return Task.WhenAll(tasks);
             }
+
+            return Task.FromResult(0);
         }
 
         public virtual ISubscription Subscribe<TMessage>(Action<TMessage> action)

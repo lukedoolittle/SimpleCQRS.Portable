@@ -1,10 +1,11 @@
-﻿using SimpleCQRS.Infrastructure;
+﻿using System.Threading.Tasks;
+using SimpleCQRS.Infrastructure;
 
 namespace SimpleCQRS.Framework.Contracts
 {
     public interface ICommandSender
     {
-        void Send<T>(T command) 
+        Task Send<T>(T command) 
             where T : Command;
     }
 }

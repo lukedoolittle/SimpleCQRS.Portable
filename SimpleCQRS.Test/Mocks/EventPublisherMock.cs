@@ -1,4 +1,5 @@
-﻿using LightMock;
+﻿using System.Threading.Tasks;
+using LightMock;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Framework.Contracts;
 
@@ -8,11 +9,11 @@ namespace SimpleCQRS.Test.Mocks
     {
         private object _lastPublishedObject;
 
-        public void Publish<T>(T @event) 
+        public Task Publish<T>(T @event) 
             where T : Event
         {
-            _invoker.Invoke(a => a.Publish(@event));
             _lastPublishedObject = @event;
+            return _invoker.Invoke(a => a.Publish(@event));
         }
 
         public void AssertPublishCountAtLeast<T>(int count)
