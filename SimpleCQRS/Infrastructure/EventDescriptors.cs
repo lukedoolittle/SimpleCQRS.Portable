@@ -11,32 +11,32 @@ namespace SimpleCQRS.Infrastructure
     {
         public Guid Id { get; set; }
 
-        private readonly List<EventDescriptor> _descriptors;
+        private readonly List<EventDescriptor> descriptors;
 
         public EventDescriptor this[int key]
         {
-            get { return _descriptors[key]; }
-            set { _descriptors[key] = value; }
+            get { return descriptors[key]; }
+            set { descriptors[key] = value; }
         }
 
         public EventDescriptors()
         {
-            _descriptors = new List<EventDescriptor>();
+            descriptors = new List<EventDescriptor>();
         }
 
         public void Add(EventDescriptor eventDescriptor)
         {
-            _descriptors.Add(eventDescriptor);
+            descriptors.Add(eventDescriptor);
         }
 
         public IEnumerator<EventDescriptor> GetEnumerator()
         {
-            return _descriptors.GetEnumerator();
+            return descriptors.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return _descriptors.GetEnumerator();
+            return descriptors.GetEnumerator();
         }
     }
 
