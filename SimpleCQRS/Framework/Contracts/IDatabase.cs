@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using SimpleCQRS.Domain;
 
 namespace SimpleCQRS.Framework.Contracts
 {
     public interface IDatabase<TEntity>
-        where TEntity : class, IUnique
+        where TEntity : Entity
     {
         TEntity Get(string id);
         IEnumerable<TEntity> GetAll(string aggregateId); 
@@ -15,6 +16,6 @@ namespace SimpleCQRS.Framework.Contracts
     public interface IDatabase
     {
         IEnumerable<TEntity> GetAll<TEntity>(string aggregateId)
-            where TEntity : class;
+            where TEntity : Entity;
     }
 }

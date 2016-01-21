@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CommandHandlerBase.cs" />
+    <Compile Include="Domain\Entity.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\NoImplementorsAssemblyRegisteredException.cs" />
     <Compile Include="Framework\Contracts\ICommandHandler.cs" />

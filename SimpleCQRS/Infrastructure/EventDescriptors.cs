@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using SimpleCQRS.Domain;
-using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Infrastructure
 {
     [JsonObject]
-    public class EventDescriptors : IEnumerable<EventDescriptor>, IUnique
+    public class EventDescriptors : Entity, IEnumerable<EventDescriptor>
     {
-        public Guid Id { get; set; }
-
         private readonly List<EventDescriptor> descriptors;
 
         public EventDescriptor this[int key]

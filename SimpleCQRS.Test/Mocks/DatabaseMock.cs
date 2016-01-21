@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SimpleCQRS.Domain;
 using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Test.Mocks
 {
     public class DatabaseMock<TEntity> : MockBase<IDatabase<TEntity>>, IDatabase<TEntity>
-        where TEntity : class, IUnique
+        where TEntity : Entity
     {
         private readonly Dictionary<string, TEntity> _inMemoryDatabase;
          
@@ -73,7 +74,7 @@ namespace SimpleCQRS.Test.Mocks
         }
 
         public IEnumerable<TEntity> GetAll<TEntity>(string aggregateId) 
-            where TEntity : class
+            where TEntity : Entity
         {
             return _inMemoryDatabase
                 .Values

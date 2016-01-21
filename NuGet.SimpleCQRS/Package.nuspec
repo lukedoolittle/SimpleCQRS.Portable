@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleCQRS.Portable</id>
-    <version>0.0.13</version>
+    <version>0.0.15</version>
     <title>SimpleCQRS.Portable</title>
     <authors>tecmobo</authors>
     <owners></owners>
