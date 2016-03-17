@@ -6,12 +6,31 @@ using SimpleCQRS.Framework;
 using SimpleCQRS.Test.Eventing;
 using SimpleCQRS.Test.Eventing.EventConstraintBaseTwo;
 using SimpleCQRS.Test.Eventing.EventConstraintOne;
+using SimpleCQRS.Test.Mocks;
 using Xunit;
 
 namespace SimpleCQRS.Test
 {
     public class ReflectionTests
     {
+        [Fact]
+        public void CreatingEventHandlerAndHandlingEventResultsInActionBeingTaken()
+        {
+            var result = false;
+            var action = new Action<object>((o) => result = true);
+
+            var handlerOpenType = typeof (EventHandlerMock<>);
+            var handlerFactoryMock = new HandlerFactoryMock(action);
+            var message = new EventMock<GenericDerived1>();
+
+            Reflection.CreateEventHandlerAndHandleEvent(
+                handlerOpenType, 
+                message, 
+                handlerFactoryMock);
+
+            Assert.True(result);
+        }
+
         [Fact]
         public void GetAllConcreteImplementorsReturnsOnlyConcreteItems()
         {

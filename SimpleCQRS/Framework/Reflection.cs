@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Pacman.Framework;
+using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Framework
 {
@@ -121,6 +123,22 @@ namespace SimpleCQRS.Framework
                                             handlerMethodName,
                                             eventGenericParameterTypes,
                                             new object[] {o}))});
+        }
+
+        public static void CreateEventHandlerAndHandleEvent(
+            Type eventHandlerOpenType, 
+            IMessage message,
+            IHandlerFactory factory)
+        {
+            var genericArguments = message.GetType().GenericTypeArguments;
+
+            Type closedHandlerType = eventHandlerOpenType.MakeGenericType(genericArguments);
+
+            var handler = factory.CreateHandler(closedHandlerType);
+
+            new MethodInvoker(handler, "Handle")
+                .AddMethodParameter(message)
+                .Execute();
         }
 
         #endregion Subscription

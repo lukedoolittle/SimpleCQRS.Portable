@@ -35,6 +35,7 @@
     <Compile Include="Domain\Entity.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\NoImplementorsAssemblyRegisteredException.cs" />
+    <Compile Include="Exceptions\TypeMismatchException.cs" />
     <Compile Include="Framework\Contracts\ICommandHandler.cs" />
     <Compile Include="Framework\Contracts\ICommandSender.cs" />
     <Compile Include="Framework\Contracts\IConcurrencyConflictResolver.cs" />
@@ -42,6 +43,7 @@
     <Compile Include="Framework\Contracts\IEventHandler.cs" />
     <Compile Include="Framework\Contracts\IEventPublisher.cs" />
     <Compile Include="Framework\Contracts\IEventStore.cs" />
+    <Compile Include="Framework\Contracts\IHandlerFactory.cs" />
     <Compile Include="Framework\Contracts\IMessage.cs" />
     <Compile Include="Framework\Contracts\IMessageBus.cs" />
     <Compile Include="Framework\Contracts\IRepository.cs" />
@@ -52,6 +54,8 @@
     <Compile Include="Domain\ConcurrencyConflictResolver.cs" />
     <Compile Include="Domain\Event.cs" />
     <Compile Include="Exceptions\EventStoreConcurrencyException.cs" />
+    <Compile Include="Framework\InstanceCreator.cs" />
+    <Compile Include="Framework\MethodInvoker.cs" />
     <Compile Include="Infrastructure\Command.cs" />
     <Compile Include="Infrastructure\EventDescriptors.cs" />
     <Compile Include="Infrastructure\EventStore.cs" />

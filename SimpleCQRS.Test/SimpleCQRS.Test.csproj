@@ -87,8 +87,10 @@
     <Compile Include="MessageBusTests.cs" />
     <Compile Include="Mocks\AggregateRootMock.cs" />
     <Compile Include="Mocks\DatabaseMock.cs" />
+    <Compile Include="Mocks\EventHandlerMock.cs" />
     <Compile Include="Mocks\EventPublisherMock.cs" />
     <Compile Include="Mocks\EventStoreMock.cs" />
+    <Compile Include="Mocks\HandlerFactoryMock.cs" />
     <Compile Include="Mocks\MockBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReflectionExtensions.cs" />

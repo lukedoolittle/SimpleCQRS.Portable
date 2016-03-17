@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Exceptions;
+using SimpleCQRS.Framework;
 using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Infrastructure
@@ -13,6 +15,18 @@ namespace SimpleCQRS.Infrastructure
         private readonly IDictionary<Type, IList<ISubscription>> _subscriptions =
             new Dictionary<Type, IList<ISubscription>>();
 
+        private readonly IHandlerFactory _factory;
+
+        public MessageBus(IHandlerFactory factory)
+        {
+            if (factory == null)
+            {
+                throw new NullReferenceException(nameof(factory));
+            }
+
+            _factory = factory;
+        }
+
         public virtual Task Send<TCommand>(TCommand command)
             where TCommand : Command
         {
@@ -21,20 +35,13 @@ namespace SimpleCQRS.Infrastructure
                 throw new ArgumentNullException(nameof(command));
             }
 
-            Type messageType = typeof(TCommand);
-            if (_subscriptions.ContainsKey(messageType))
-            {
-                var subscriptionList = new List<ISubscription>(
-                    _subscriptions[messageType].Cast<ISubscription>());
-                if (subscriptionList.Count != 1)
-                {
-                    throw new MultipleCommandHandlersException();
-                }
+            var messageType = command.GetType();
+            var results = TypePublish(command, messageType);
 
-                return Task.Run(() => subscriptionList[0].Action(command));
-            }
+            var openGenericMessageType = command.GetType().GetGenericTypeDefinition();
+            var genericResults = TypePublish(command, openGenericMessageType);
 
-            return Task.FromResult(0);
+            return Task.WhenAll(results, genericResults);
         }
 
         public virtual Task Publish<TEvent>(TEvent @event)
@@ -45,18 +52,75 @@ namespace SimpleCQRS.Infrastructure
                 throw new ArgumentNullException(nameof(@event));
             }
 
-            Type messageType = @event.GetType();
-            if (_subscriptions.ContainsKey(messageType))
+            var messageType = @event.GetType();
+            var results = TypePublish(@event, messageType);
+           
+            var openGenericMessageType = @event.GetType().GetGenericTypeDefinition();
+            var genericResults = TypePublish(@event, openGenericMessageType);
+
+            return Task.WhenAll(results, genericResults);
+        }
+
+        private Task TypePublish<TMessage>(
+            TMessage message, 
+            Type subscriptionType, 
+            bool limitSubscriptionCount = false)
+            where TMessage : IMessage
+        {
+            if (_subscriptions.ContainsKey(subscriptionType))
             {
                 var subscriptionList = new List<ISubscription>(
-                    _subscriptions[messageType]);
+                    _subscriptions[subscriptionType]);
+                if (limitSubscriptionCount && subscriptionList.Count != 1)
+                {
+                    throw new MultipleCommandHandlersException();
+                }
                 var tasks = subscriptionList
-                    .Select(subscription => Task.Run(() => subscription.Action(@event)))
+                    .Select(subscription => Task.Run(() => subscription.Action(message)))
                     .ToList();
                 return Task.WhenAll(tasks);
             }
 
             return Task.FromResult(0);
+        }
+
+        public virtual ISubscription OpenSubscribe(
+            Type openGenericMessageType, 
+            Type openGenericEventHandlerType)
+        {
+            if (!(openGenericMessageType.HasBase(typeof(Command)) || 
+                openGenericMessageType.HasBase(typeof(Event))))
+            {
+                throw new TypeMismatchException();
+            }
+
+            var implementedInterfaces =
+                openGenericEventHandlerType
+                    .GetTypeInfo()
+                    .ImplementedInterfaces.Select(i => i.GetGenericTypeDefinition());
+
+            if (!(implementedInterfaces.Contains(typeof(IEventHandler<>)) || 
+                implementedInterfaces.Contains(typeof(ICommandHandler<>))))
+            {
+                throw new TypeMismatchException();
+            }
+
+            var subscription = new MessageSubscription(
+                this,
+                message => Reflection.CreateEventHandlerAndHandleEvent(
+                    openGenericEventHandlerType, 
+                    message,
+                    _factory),
+                openGenericMessageType);
+
+            if (_subscriptions.ContainsKey(openGenericMessageType))
+                _subscriptions[openGenericMessageType].Add(subscription);
+            else
+                _subscriptions.Add(
+                    openGenericMessageType,
+                    new List<ISubscription> { subscription });
+
+            return subscription;
         }
 
         public virtual ISubscription Subscribe<TMessage>(Action<TMessage> action)

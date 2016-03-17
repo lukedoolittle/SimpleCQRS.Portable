@@ -7,6 +7,10 @@ namespace SimpleCQRS.Framework.Contracts
         ISubscription Subscribe<TMessage>(Action<TMessage> action)
             where TMessage : IMessage;
 
+        ISubscription OpenSubscribe(
+            Type openGenericMessageType,
+            Type openGenericEventHandlerType);
+
         void UnSubscribe(ISubscription subscription);
     }
 }
