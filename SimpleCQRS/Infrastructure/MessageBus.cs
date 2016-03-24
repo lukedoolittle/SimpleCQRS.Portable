@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Pacman.Framework;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Exceptions;
 using SimpleCQRS.Framework;
@@ -30,35 +31,44 @@ namespace SimpleCQRS.Infrastructure
         public virtual Task Send<TCommand>(TCommand command)
             where TCommand : Command
         {
-            if (command == null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
-
-            var messageType = command.GetType();
-            var results = TypePublish(command, messageType);
-
-            var openGenericMessageType = command.GetType().GetGenericTypeDefinition();
-            var genericResults = TypePublish(command, openGenericMessageType);
-
-            return Task.WhenAll(results, genericResults);
+            return Message(command, true);
         }
 
         public virtual Task Publish<TEvent>(TEvent @event)
             where TEvent : Event
         {
-            if (@event == null)
+            return Message(@event, false);
+        }
+
+        private Task Message<TMessage>(
+            TMessage message,
+            bool limitSubscriptionCount)
+            where TMessage : IMessage
+        {
+            if (message == null)
             {
-                throw new ArgumentNullException(nameof(@event));
+                throw new ArgumentNullException(nameof(message));
             }
 
-            var messageType = @event.GetType();
-            var results = TypePublish(@event, messageType);
-           
-            var openGenericMessageType = @event.GetType().GetGenericTypeDefinition();
-            var genericResults = TypePublish(@event, openGenericMessageType);
+            var messageType = message.GetType();
 
-            return Task.WhenAll(results, genericResults);
+            var results = TypePublish(
+                message, 
+                messageType, 
+                limitSubscriptionCount);
+
+            if (messageType.IsConstructedGenericType)
+            {
+                var openGenericMessageType = messageType.GetGenericTypeDefinition();
+                var genericResults = TypePublish(
+                    message,
+                    openGenericMessageType,
+                    limitSubscriptionCount);
+
+                return Task.WhenAll(results, genericResults);
+            }
+
+            return Task.WhenAll(results);
         }
 
         private Task TypePublish<TMessage>(
@@ -85,17 +95,17 @@ namespace SimpleCQRS.Infrastructure
         }
 
         public virtual ISubscription OpenSubscribe(
-            Type openGenericMessageType, 
-            Type openGenericEventHandlerType)
+            Type messageType, 
+            Type eventHandlerType)
         {
-            if (!(openGenericMessageType.HasBase(typeof(Command)) || 
-                openGenericMessageType.HasBase(typeof(Event))))
+            if (!(messageType.HasBase(typeof(Command)) || 
+                messageType.HasBase(typeof(Event))))
             {
                 throw new TypeMismatchException();
             }
 
             var implementedInterfaces =
-                openGenericEventHandlerType
+                eventHandlerType
                     .GetTypeInfo()
                     .ImplementedInterfaces.Select(i => i.GetGenericTypeDefinition());
 
@@ -105,22 +115,30 @@ namespace SimpleCQRS.Infrastructure
                 throw new TypeMismatchException();
             }
 
-            var subscription = new MessageSubscription(
-                this,
-                message => Reflection.CreateEventHandlerAndHandleEvent(
-                    openGenericEventHandlerType, 
-                    message,
-                    _factory),
-                openGenericMessageType);
+            if (eventHandlerType.GetTypeInfo().IsGenericType)
+            {
+                var subscription = new MessageSubscription(
+                    this,
+                    message => Reflection.CreateEventHandlerAndHandleEvent(
+                        eventHandlerType,
+                        message,
+                        _factory),
+                    messageType);
 
-            if (_subscriptions.ContainsKey(openGenericMessageType))
-                _subscriptions[openGenericMessageType].Add(subscription);
+                if (_subscriptions.ContainsKey(messageType))
+                    _subscriptions[messageType].Add(subscription);
+                else
+                    _subscriptions.Add(
+                        messageType,
+                        new List<ISubscription> {subscription});
+
+                return subscription;
+            }
             else
-                _subscriptions.Add(
-                    openGenericMessageType,
-                    new List<ISubscription> { subscription });
-
-            return subscription;
+            {
+                var handler = _factory.CreateHandler(eventHandlerType);
+                return Subscribe(handler, messageType);
+            }
         }
 
         public virtual ISubscription Subscribe<TMessage>(Action<TMessage> action)
@@ -140,6 +158,29 @@ namespace SimpleCQRS.Infrastructure
                     new List<ISubscription> { subscription });
 
             return subscription;
+        }
+
+        public ISubscription Subscribe(
+            object handler,
+            Type eventType,
+            Type eventTypeGenericParameters = null)
+        {
+            string subscriptionMethod = "Subscribe";
+            string handlerMethod = "Handle";
+
+            var type = eventType;
+            if (eventTypeGenericParameters != null)
+            {
+                type = eventType.MakeGenericType(eventTypeGenericParameters);
+            }
+
+            return (ISubscription)new MethodInvoker(this, subscriptionMethod)
+                .AddGenericParameter(type)
+                .AddMethodParameter(new Action<object>(o =>
+                    new MethodInvoker(handler, handlerMethod)
+                        .AddMethodParameter(o)
+                        .Execute()))
+                .Execute();
         }
 
         public virtual void UnSubscribe(ISubscription subscription)
