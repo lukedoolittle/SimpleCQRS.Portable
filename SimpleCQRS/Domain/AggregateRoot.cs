@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Pacman.Framework;
 using SimpleCQRS.Exceptions;
 using SimpleCQRS.Framework;
 using SimpleCQRS.Framework.Contracts;
@@ -25,12 +26,6 @@ namespace SimpleCQRS.Domain
             _conflictResolver = new ConcurrencyConflictResolver();
             _changes = new List<Event>();
             _registeredEvents = new Dictionary<Type, Action<Event>>();
-        }
-
-        protected AggregateRoot(Assembly genericArgumentsAssembly) : 
-            this()
-        {
-            _genericArgumentsAssembly = genericArgumentsAssembly;
         }
 
         #region ConflictResolvers
@@ -132,70 +127,21 @@ namespace SimpleCQRS.Domain
                 @event => eventHandler(@event as TEvent));
         }
 
-        //This is a bit of a hack as it simply combinatorically registers all possible
-        //type subtype combinations even if they are not valid
-        protected void RegisterGenericEvents<TGenericType, TSubGenericType>(Type genericEventType)
+        protected void RegisterOpenGenericEvent(Type openGenericEventType)
         {
-            if (_genericArgumentsAssembly == null)
-            {
-                throw new NoImplementorsAssemblyRegisteredException();
-            }
+            string methodName = $"On{openGenericEventType.GetNonGenericName()}";
 
-            var generic = typeof(TGenericType);
-            var genericSub = typeof(TSubGenericType);
-
-            var genericTypes =
-                Reflection.GetAllConcreteImplementors(
-                generic,
-                _genericArgumentsAssembly);
-
-            var subGenericTypes =
-                Reflection.GetAllConcreteImplementors(
-                genericSub,
-                _genericArgumentsAssembly);
-
-            string methodName = $"On{genericEventType.GetNonGenericName()}";
-
-            foreach (var genericType in genericTypes)
-            {
-                foreach (var subGenericType in subGenericTypes)
+            _registeredEvents.Add(
+                openGenericEventType,
+                @event =>
                 {
-                    Reflection.SubscribeToGenericEventWithGenericHandler(
-                        genericEventType,
-                        new Type[] { genericType, subGenericType },
-                        this,
-                        this,
-                        "RegisterEvent",
-                        methodName);
-                }
-            }
-        }
-
-        protected void RegisterGenericEvents<TGenericType>(Type genericEventType)
-        {
-            if (_genericArgumentsAssembly == null)
-            {
-                throw new NoImplementorsAssemblyRegisteredException();
-            }
-
-            string methodName = $"On{genericEventType.GetNonGenericName()}";
-
-            var generic = typeof(TGenericType);
-
-            var genericTypes = Reflection.GetAllConcreteImplementors(
-                generic,
-                _genericArgumentsAssembly);
-
-            foreach (var genericType in genericTypes)
-            {
-                Reflection.SubscribeToGenericEventWithGenericHandler(
-                    genericEventType,
-                    new Type[] { genericType },
-                    this,
-                    this,
-                    "RegisterEvent",
-                    methodName);
-            }
+                    var genericTypeParameter =
+                        @event.GetType().GenericTypeArguments[0];
+                    new MethodInvoker(this, methodName)
+                        .AddGenericParameter(genericTypeParameter)
+                        .AddMethodParameter(@event)
+                        .Execute();
+                });
         }
 
         #endregion EventRegistration
@@ -241,6 +187,16 @@ namespace SimpleCQRS.Domain
             if (_registeredEvents.TryGetValue(eventType, out handler))
             {
                 handler(domainEvent);
+            }
+
+            if (eventType.GetTypeInfo().IsGenericType)
+            {
+                var openGenericType = eventType.GetGenericTypeDefinition();
+
+                if (_registeredEvents.TryGetValue(openGenericType, out handler))
+                {
+                    handler(domainEvent);
+                }
             }
         }
     }

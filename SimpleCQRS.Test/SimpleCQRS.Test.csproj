@@ -86,6 +86,7 @@
     <Compile Include="EventStoreTests.cs" />
     <Compile Include="MessageBusTests.cs" />
     <Compile Include="Mocks\AggregateRootMock.cs" />
+    <Compile Include="Mocks\AggregateRootRegistrationMock.cs" />
     <Compile Include="Mocks\DatabaseMock.cs" />
     <Compile Include="Mocks\EventHandlerMock.cs" />
     <Compile Include="Mocks\EventPublisherMock.cs" />
