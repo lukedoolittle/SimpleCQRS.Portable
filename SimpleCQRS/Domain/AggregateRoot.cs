@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Pacman.Framework;
-using SimpleCQRS.Exceptions;
 using SimpleCQRS.Framework;
 using SimpleCQRS.Framework.Contracts;
 
@@ -14,7 +12,6 @@ namespace SimpleCQRS.Domain
         protected readonly Dictionary<Type, Action<Event>> _registeredEvents;
         protected readonly List<Event> _changes;
         protected readonly IConcurrencyConflictResolver _conflictResolver;
-        protected readonly Assembly _genericArgumentsAssembly;
 
         public abstract Guid Id { get; }
         public int Version { get; protected set; }
@@ -31,75 +28,6 @@ namespace SimpleCQRS.Domain
         #region ConflictResolvers
 
         protected abstract void RegisterConflictResolvers();
-
-        protected void RegisterGenericConflictResolvers<TGenericType, TSubGenericType>(
-            Type genericEventType,
-            List<Type> conflictingTypes,
-            bool registerSelf = false)
-        {
-            if (_genericArgumentsAssembly == null)
-            {
-                throw new NoImplementorsAssemblyRegisteredException();
-            }
-
-            var generic = typeof(TGenericType);
-            var genericSub = typeof(TSubGenericType);
-
-            var genericTypes =
-                Reflection.GetAllConcreteImplementors(
-                generic,
-                _genericArgumentsAssembly);
-
-            var subGenericTypes =
-                Reflection.GetAllConcreteImplementors(
-                genericSub,
-                _genericArgumentsAssembly);
-
-            foreach (var genericType in genericTypes)
-            {
-                foreach (var subGenericType in subGenericTypes)
-                {
-                    var targetType = Reflection.CreateGenericType(
-                        genericEventType, 
-                        genericType, 
-                        subGenericType);
-                    var genericConflictingTypes = conflictingTypes
-                        .Select(t =>
-                            t.GetTypeInfo().IsGenericTypeDefinition ?
-                                Reflection.CreateGenericType(t, genericType, subGenericType) :
-                                t);
-                    RegisterConflictResolvers(targetType, genericConflictingTypes.ToList(), registerSelf);
-                }
-            }
-        }
-
-        protected void RegisterGenericConflictResolvers<TGenericType>(
-            Type genericEventType,
-            List<Type> conflictingTypes,
-            bool registerSelf = false)
-        {
-            if (_genericArgumentsAssembly == null)
-            {
-                throw new NoImplementorsAssemblyRegisteredException();
-            }
-
-            var generic = typeof(TGenericType);
-
-            var genericTypes = Reflection.GetAllConcreteImplementors(
-                generic,
-                _genericArgumentsAssembly);
-
-            foreach (var type in genericTypes)
-            {
-                var genericType = Reflection.CreateGenericType(genericEventType, type);
-                var genericConflictingTypes = conflictingTypes
-                    .Select(t => 
-                        t.GetTypeInfo().IsGenericTypeDefinition ? 
-                            Reflection.CreateGenericType(t, type) : 
-                            t);
-                RegisterConflictResolvers(genericType, genericConflictingTypes.ToList(), registerSelf);
-            }
-        }
 
         protected void RegisterConflictResolvers(
             Type targetType,
@@ -189,11 +117,11 @@ namespace SimpleCQRS.Domain
                 handler(domainEvent);
             }
 
-            if (eventType.GetTypeInfo().IsGenericType)
-            {
-                var openGenericType = eventType.GetGenericTypeDefinition();
+            var unboundType = eventType.Unbind();
 
-                if (_registeredEvents.TryGetValue(openGenericType, out handler))
+            if (unboundType != eventType)
+            {
+                if (_registeredEvents.TryGetValue(unboundType, out handler))
                 {
                     handler(domainEvent);
                 }

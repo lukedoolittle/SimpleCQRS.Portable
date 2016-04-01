@@ -7,6 +7,18 @@ namespace SimpleCQRS.Framework
 {
     public static class TypeExtensions
     {
+        public static Type Unbind(this Type instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return instance.GetTypeInfo().IsGenericType ? 
+                    instance.GetGenericTypeDefinition() : 
+                    instance;
+        }
+
         public static Type WithGenericParameters(
             this Type instance,
             params Type[] genericParameters)

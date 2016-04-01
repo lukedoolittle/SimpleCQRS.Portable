@@ -10,6 +10,40 @@ namespace SimpleCQRS.Test
     public class ConcurrencyConflictResolverTests
     {
         [Fact]
+        public void RegisterConflictingOpenTypesTryToConflictWithEventWithSameGenericParameter()
+        {
+            var targetType = typeof(Event2<>);
+            var conflictingTypes = new List<Type>
+            {
+                typeof(Event2<>)
+            };
+            var actualType = typeof (Event2<EventConstraint1>);
+            var actualConflictingTypes = new List<Type> {typeof (Event2<EventConstraint1>)};
+            var resolver = new ConcurrencyConflictResolver();
+
+            resolver.RegisterConflictList(targetType, conflictingTypes);
+
+            Assert.True(resolver.ConflictsWith(actualType, actualConflictingTypes));
+        }
+
+        [Fact]
+        public void RegisterConflictingOpenTypesTryToConflictWithEventWithDifferentGenericParameter()
+        {
+            var targetType = typeof(Event2<>);
+            var conflictingTypes = new List<Type>
+            {
+                typeof(Event2<>)
+            };
+            var actualType = typeof(Event2<EventConstraint1>);
+            var actualConflictingTypes = new List<Type> { typeof(Event2<EventConstraintAnother1>) };
+            var resolver = new ConcurrencyConflictResolver();
+
+            resolver.RegisterConflictList(targetType, conflictingTypes);
+
+            Assert.False(resolver.ConflictsWith(actualType, actualConflictingTypes));
+        }
+
+        [Fact]
         public void RegisterConflictingTypesAndExpectHasConflictToReturnTrue()
         {
             var targetType = typeof(Event1);
