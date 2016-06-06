@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pacman.Framework
+namespace SimpleCQRS.Framework
 {
     public class InstanceCreator
     {

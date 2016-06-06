@@ -9,7 +9,7 @@ namespace SimpleCQRS.Infrastructure
 {
     public class EventStore : IEventStore
     {
-        private readonly static object _saveLock = new object();
+        private static readonly object _saveLock = new object();
         private readonly IEventPublisher _publisher;
         private readonly IDatabase<EventDescriptors> _database;
 

@@ -143,16 +143,17 @@ namespace SimpleCQRS.Test
             var aggregateId = Guid.NewGuid();
             var databaseMock = new DatabaseMock<EventDescriptors>();
             var existingEvents = new EventDescriptors { Id = aggregateId };
-            existingEvents.Add(new EventDescriptor(Guid.NewGuid(), new Event(), 0));
-            existingEvents.Add(new EventDescriptor(Guid.NewGuid(), new Event(), 1));
+            existingEvents.Add(new EventDescriptor(Guid.NewGuid(), new Event1(), 0));
+            existingEvents.Add(new EventDescriptor(Guid.NewGuid(), new Event1(), 1));
             databaseMock.Put(existingEvents);
 
             var expectedVersion = existingEvents.Count() - 2;
             IConcurrencyConflictResolver conflictResolver = new ConcurrencyConflictResolver();
+            conflictResolver.RegisterConflictList(typeof(Event1), new List<Type> {typeof(Event1)});
             var newEvents = new List<Event>
             {
-                new Event(),
-                new Event()
+                new Event1(),
+                new Event1()
             };
 
             var publisherMock = new EventPublisherMock();

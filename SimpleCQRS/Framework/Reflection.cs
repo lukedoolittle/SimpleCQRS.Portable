@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Pacman.Framework;
 using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Framework

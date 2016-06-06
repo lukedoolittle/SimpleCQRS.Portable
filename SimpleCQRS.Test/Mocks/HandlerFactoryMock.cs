@@ -1,5 +1,5 @@
 ﻿using System;
-using Pacman.Framework;
+using SimpleCQRS.Framework;
 using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Test.Mocks

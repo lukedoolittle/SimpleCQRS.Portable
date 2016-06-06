@@ -59,6 +59,7 @@
     <Compile Include="Infrastructure\Command.cs" />
     <Compile Include="Infrastructure\EventDescriptors.cs" />
     <Compile Include="Infrastructure\EventStore.cs" />
+    <Compile Include="Infrastructure\GenericsMessageBus.cs" />
     <Compile Include="Infrastructure\MessageBus.cs" />
     <Compile Include="Infrastructure\MessageSubscription.cs" />
     <Compile Include="Infrastructure\Repository.cs" />
