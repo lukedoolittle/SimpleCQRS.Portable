@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using SimpleCQRS.Framework;
 using SimpleCQRS.Framework.Contracts;
 
@@ -8,10 +9,10 @@ namespace SimpleCQRS.Domain
 {
     public abstract class AggregateRoot
     {
-        protected readonly Dictionary<Type, Action<Event>> _registeredEvents;
         protected readonly List<Event> _changes;
         protected readonly IConcurrencyConflictResolver _conflictResolver;
-
+        protected readonly List<object> _entities;
+         
         public abstract Guid Id { get; }
         public int Version { get; protected set; }
         public IConcurrencyConflictResolver ConflictResolver => _conflictResolver;
@@ -21,7 +22,7 @@ namespace SimpleCQRS.Domain
         {
             _conflictResolver = new ConcurrencyConflictResolver();
             _changes = new List<Event>();
-            _registeredEvents = new Dictionary<Type, Action<Event>>();
+            _entities = new List<object>();
         }
 
         #region ConflictResolvers
@@ -42,37 +43,6 @@ namespace SimpleCQRS.Domain
 
         #endregion ConflictResolvers
 
-        #region EventRegistration
-
-        protected abstract void RegisterEvents();
-
-        protected void RegisterEvent<TEvent>(Action<TEvent> eventHandler)
-            where TEvent : Event
-        {
-            _registeredEvents.Add(
-                typeof(TEvent),
-                @event => eventHandler(@event as TEvent));
-        }
-
-        protected void RegisterOpenGenericEvent(Type openGenericEventType)
-        {
-            string methodName = $"On{openGenericEventType.GetNonGenericName()}";
-
-            _registeredEvents.Add(
-                openGenericEventType,
-                @event =>
-                {
-                    var genericTypeParameter =
-                        @event.GetType().GenericTypeArguments[0];
-                    new MethodInvoker(this, methodName)
-                        .AddGenericParameter(genericTypeParameter)
-                        .AddMethodParameter(@event)
-                        .Execute();
-                });
-        }
-
-        #endregion EventRegistration
-
         public IEnumerable<Event> GetUncommittedChanges()
         {
             return _changes;
@@ -92,39 +62,67 @@ namespace SimpleCQRS.Domain
 
             foreach (var domainEvent in enumerableDomainEvents)
             {
-                Apply(domainEvent.GetType(), domainEvent);
+                Apply(domainEvent);
             }
 
             Version = enumerableDomainEvents.Last().Version;
             EventVersion = Version;
         }
 
+        protected void AddEntity(object entity)
+        {
+            _entities.Add(entity);
+        }
+
+        protected void RemoveEntity(object entity)
+        {
+            _entities.Remove(entity);
+        }
+
         protected void ApplyChange(Event domainEvent)
         {
             domainEvent.AggregateId = Id;
             domainEvent.Version = ++EventVersion;
-            Apply(domainEvent.GetType(), domainEvent);
+            Apply(domainEvent);
             _changes.Add(domainEvent);
         }
 
-        protected void Apply(Type eventType, Event domainEvent)
+        protected void Apply(Event domainEvent)
         {
-            Action<Event> handler;
+            //var eventType = domainEvent.GetType();
 
-            if (_registeredEvents.TryGetValue(eventType, out handler))
+            //string methodName = $"On{eventType.GetNonGenericName()}";
+
+            this.InvokeMethodMatchingParameters(domainEvent);
+
+            //var methodInfo = this
+            //    .GetMethodInfoMatchingSignature(methodName, domainEvent)
+            //    .FirstOrDefault();
+
+            //foreach (var entity in _entities)
+            //{
+            //    if (methodInfo != null)
+            //    {
+            //        break;
+            //    }
+            //    methodInfo = entity.
+            //        GetMethodInfoMatchingSignature(methodName, domainEvent)
+            //        .FirstOrDefault();
+            //}
+
+            foreach (var entity in _entities)
             {
-                handler(domainEvent);
+                entity.InvokeMethodMatchingParameters(domainEvent);
             }
 
-            var unboundType = eventType.Unbind();
+            //I'm not sure if this will work here...
+            //if (eventType.IsConstructedGenericType)
+            //{
+            //    var genericTypeParameters = eventType.GenericTypeArguments;
+            //    methodInfo = methodInfo.MakeGenericMethod(genericTypeParameters);
+            //}
 
-            if (unboundType != eventType)
-            {
-                if (_registeredEvents.TryGetValue(unboundType, out handler))
-                {
-                    handler(domainEvent);
-                }
-            }
+            //methodInfo.Invoke(this, new object[] { domainEvent });
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using SimpleCQRS.Domain;
 using SimpleCQRS.Test.Eventing;
 using SimpleCQRS.Test.Eventing.EventConstraintBaseTwo;
@@ -49,25 +48,10 @@ namespace SimpleCQRS.Test.Mocks
             throw new NotImplementedException();
         }
 
-        public void CallRegisterEvents()
-        {
-            RegisterEvents();
-        }
-
-        public void RegisterOpenGenericEvents(Type eventType)
-        {
-            RegisterOpenGenericEvent(eventType);
-        }
-
         public void HandleEvent<TEvent>(TEvent @event)
             where TEvent : Event
         {
             ApplyChange(@event);
-        }
-
-        protected override void RegisterEvents()
-        {
-            RegisterEvent<Event1>(OnEvent1);
         }
     }
 }

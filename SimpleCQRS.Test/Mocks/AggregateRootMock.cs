@@ -11,7 +11,6 @@ namespace SimpleCQRS.Test.Mocks
 
         public AggregateRootMock()
         {
-            RegisterEvents();
         }
 
         public AggregateRootMock(Guid id) : this()
@@ -19,17 +18,12 @@ namespace SimpleCQRS.Test.Mocks
             Id = id;
         }
 
-        protected override void RegisterEvents()
-        {
-            RegisterEvent<Event>(OnSomeEvent);
-        }
-
         protected override void RegisterConflictResolvers()
         {
             throw new NotImplementedException();
         }
 
-        protected void OnSomeEvent(Event @event)
+        protected void OnEvent(Event @event)
         {
             MyEvent = @event;
         }
