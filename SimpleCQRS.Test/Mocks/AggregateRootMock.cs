@@ -28,7 +28,7 @@ namespace SimpleCQRS.Test.Mocks
             MyEvent = @event;
         }
 
-        public void SomeEvent(Event @event)
+        public void SomeEvent(Event @event, object a = null)
         {
             ApplyChange(@event);
         }

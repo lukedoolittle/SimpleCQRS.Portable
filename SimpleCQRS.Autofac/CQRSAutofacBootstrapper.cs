@@ -1,24 +1,31 @@
-﻿using BatmansBelt;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using Autofac;
+using Autofac.Features.ResolveAnything;
+using BatmansBelt;
 using BatmansBelt.Extensions;
+using Microsoft.Practices.ServiceLocation;
 using SimpleCQRS.Framework.Contracts;
 
 namespace SimpleCQRS.Autofac
 {
     public class CQRSAutofacBootstrapper : AutofacBootstrapperBase
     {
-        protected override void UseDefaults()
+        protected override IServiceLocator BuildContainer(
+            ContainerBuilder builder, 
+            IEnumerable<Assembly> assemblies)
         {
-            var assemblies = CurrentAppDomain.GetAssemblies();
-
-            _builder.RegisterAssemblyGenericInterfaceImplementors(
+            builder.RegisterAssemblyGenericInterfaceImplementors(
                 assemblies,
                 typeof(IEventHandler<>));
 
-            _builder.RegisterAssemblyGenericInterfaceImplementors(
+            builder.RegisterAssemblyGenericInterfaceImplementors(
                 assemblies,
                 typeof(ICommandHandler<>));
 
-            base.UseDefaults();
+            builder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource());
+
+            return base.BuildContainer(builder, assemblies);
         }
     }
 }
