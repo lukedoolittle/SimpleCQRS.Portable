@@ -7,24 +7,7 @@ namespace SimpleCQRS.Framework
 {
     public static class TypeExtensions
     {
-        public static string GetNonGenericName(this Type instance)
-        {
-            if (!instance.GetTypeInfo().IsGenericType)
-            {
-                return instance.Name;
-            }
-
-            else
-            {
-                var argumentCount = instance.GetTypeInfo().GenericTypeParameters.Count();
-                if (argumentCount == 0)
-                {
-                    argumentCount = instance.GetTypeInfo().GenericTypeArguments.Count();
-                }
-                return instance.Name.Replace($"`{argumentCount}", "");
-            }
-        }
-
+        //TODO: remove this when we get rid of the conflict resolver
         public static Type Unbind(this Type instance)
         {
             if (instance == null)

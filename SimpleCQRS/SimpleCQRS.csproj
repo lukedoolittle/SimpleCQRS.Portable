@@ -34,8 +34,6 @@
     <Compile Include="CommandHandlerBase.cs" />
     <Compile Include="Domain\Entity.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
-    <Compile Include="Exceptions\NoImplementorsAssemblyRegisteredException.cs" />
-    <Compile Include="Exceptions\TypeMismatchException.cs" />
     <Compile Include="Contracts\ICommandHandler.cs" />
     <Compile Include="Contracts\ICommandSender.cs" />
     <Compile Include="Contracts\IConcurrencyConflictResolver.cs" />
