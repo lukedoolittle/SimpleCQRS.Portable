@@ -11,6 +11,10 @@ namespace SimpleCQRS.Autofac
 {
     public class CQRSAutofacBootstrapper : AutofacBootstrapperBase
     {
+        public CQRSAutofacBootstrapper(params Assembly[] assemblies) : 
+            base(assemblies)
+        { }
+
         protected override IServiceLocator BuildContainer(
             ContainerBuilder builder, 
             IEnumerable<Assembly> assemblies)

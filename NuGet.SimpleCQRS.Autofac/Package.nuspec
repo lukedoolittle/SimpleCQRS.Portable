@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleCQRS.Autofac.Portable</id>
-    <version>0.0.2</version>
+    <version>0.0.4</version>
     <title>SimpleCQRS.Autofac.Portable</title>
     <authors>tecmobo</authors>
     <owners></owners>
