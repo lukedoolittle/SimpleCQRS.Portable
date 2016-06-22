@@ -48,7 +48,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="BatmansBelt, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\BatmansBelt.0.0.5\lib\BatmansBelt.dll</HintPath>
+      <HintPath>..\packages\BatmansBelt.0.0.6\lib\BatmansBelt.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">

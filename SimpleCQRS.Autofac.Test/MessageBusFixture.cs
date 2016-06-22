@@ -9,7 +9,9 @@ namespace SimpleCQRS.Autofac.Test
 
         public MessageBusFixture()
         {
-            Resolver = new CQRSAutofacBootstrapper().Run();
+            Resolver = new CQRSAutofacBootstrapper()
+                .AddAllLoadedAssemblies()
+                .Run();
         }
 
         public void Dispose()
