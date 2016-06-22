@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleCQRS.Autofac.Portable</id>
-    <version>0.0.5</version>
+    <version>0.0.7</version>
     <title>SimpleCQRS.Autofac.Portable</title>
     <authors>tecmobo</authors>
     <owners></owners>
@@ -24,7 +24,7 @@
         <group targetFramework="portable45-net45+win8+wpa81">
           <dependency id="Autofac" version="3.5.2" />
           <dependency id="Autofac.Extras.CommonServiceLocator" version="3.2.0" />
-          <dependency id="BatmansBelt" version="0.0.3" />
+          <dependency id="BatmansBelt" version="0.0.8" />
           <dependency id="CommonServiceLocator" version="1.3" />
           <dependency id="Newtonsoft.Json" version="8.0.3" />
           <dependency id="Portable.BouncyCastle" version="1.8.1" />
