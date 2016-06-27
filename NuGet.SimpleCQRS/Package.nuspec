@@ -2,9 +2,9 @@
 <package >
   <metadata>
     <id>SimpleCQRS.Portable</id>
-    <version>0.1.5</version>
+    <version>0.2.0</version>
     <title>SimpleCQRS.Portable</title>
-    <authors>tecmobo</authors>
+    <authors>lukedoolittle</authors>
     <owners></owners>
     <description>
       An implementation of the SimpleCQRS sample from Greg Young
@@ -15,14 +15,13 @@
        An implementation of the SimpleCQRS sample from Greg Young
     </summary>
     <language>en-US</language>
-    <projectUrl>https://nuget.org/packages/SimpleCQRS.Portable</projectUrl>
-    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <projectUrl>https://github.com/lukedoolittle/SimpleCQRS.Portable</projectUrl>
+    <iconUrl>https://s3.amazonaws.com/lukedoolittle/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <copyright>Copyright  2016</copyright>
     <dependencies>
         <group targetFramework="portable45-net45+win8+wpa81">
-          <dependency id="Newtonsoft.Json" version="8.0.3" />
         </group>
     </dependencies>
     <references></references>

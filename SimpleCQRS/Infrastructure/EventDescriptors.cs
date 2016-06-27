@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Linq;
 using SimpleCQRS.Domain;
 
 namespace SimpleCQRS.Infrastructure
 {
-    [JsonObject]
-    public class EventDescriptors : Entity, IEnumerable<EventDescriptor>
+    public class EventDescriptors : Entity
     {
         private readonly List<EventDescriptor> descriptors;
 
@@ -31,9 +30,26 @@ namespace SimpleCQRS.Infrastructure
             return descriptors.GetEnumerator();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        public IEnumerable<EventDescriptor> AsEnumerable()
         {
-            return descriptors.GetEnumerator();
+            return descriptors;
+        }
+
+        public int Count()
+        {
+            return descriptors.Count;
+        }
+
+        public IEnumerable<EventDescriptor> Where(
+            Func<EventDescriptor, bool> predicate)
+        {
+            return descriptors.Where(predicate);
+        }
+
+        public IEnumerable<TResult> Select<TResult>(
+            Func<EventDescriptor, TResult> selector)
+        {
+            return descriptors.Select(selector);
         }
     }
 
